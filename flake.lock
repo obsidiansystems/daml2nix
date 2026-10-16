@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nix-daml-sdk": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784741611,
+        "narHash": "sha256-9j2FYvQezYut/PXvOBV1/yiFbz9EBfjQkPu4Vn/tg9s=",
+        "owner": "obsidiansystems",
+        "repo": "nix-daml-sdk",
+        "rev": "d193c0f7129e8bd5930b40677ca101b89c62555d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "obsidiansystems",
+        "repo": "nix-daml-sdk",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nix-daml-sdk": "nix-daml-sdk"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

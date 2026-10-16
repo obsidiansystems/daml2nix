@@ -1,0 +1,26 @@
+module Main where
+
+import Daml.Script
+
+template Asset
+  with
+    issuer : Party
+    owner : Party
+    name : Text
+  where
+    signatory issuer
+    observer owner
+
+    choice Give : ContractId Asset
+      with
+        newOwner : Party
+      controller owner
+      do create this with owner = newOwner
+
+setup : Script ()
+setup = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  asset <- submit alice do createCmd Asset with issuer = alice; owner = alice; name = "TV"
+  _ <- submit alice do exerciseCmd asset Give with newOwner = bob
+  pure ()
