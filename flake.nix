@@ -18,6 +18,8 @@
       sdkRoot = "${daml.sdk}/sdk/${daml.sdkVersion}";
     in
     {
+      lib.${system}.fetchOciDar = pkgs.callPackage ./nix/fetch-oci-dar.nix { };
+
       packages.${system}.basic = pkgs.stdenvNoCC.mkDerivation {
         name = "basic";
         src = ./fixtures/basic;
