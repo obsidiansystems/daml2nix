@@ -1,0 +1,11 @@
+[package]
+name        = "daml2nix"
+version     = "0.1.0"
+edition     = "2024"
+description = "Hermetic Nix builds for Daml packages from the dpm registry"
+license     = "Apache-2.0"
+
+[dependencies]
+serde        = { version = "1.0.229", features = [ "derive" ] }
+serde-saphyr = "2.0.0"
+thiserror    = "2.0.21"
