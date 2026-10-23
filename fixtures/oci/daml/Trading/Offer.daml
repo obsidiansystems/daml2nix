@@ -1,0 +1,16 @@
+module Trading.Offer where
+
+import Asset.Asset
+
+template Offer
+  with
+    seller : Party
+    buyer : Party
+    asset : ContractId Asset
+  where
+    signatory seller
+    observer buyer
+
+    choice Accept : ContractId Asset
+      controller buyer
+      do exercise asset Transfer with newOwner = buyer
