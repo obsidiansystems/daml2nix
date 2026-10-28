@@ -27,23 +27,20 @@
         inherit fetchOciDar fetchOciComponent buildDamlPackage;
       };
 
-      packages.${system} = {
-        basic = buildDamlPackage {
-          name = "basic";
-          version = "1.0.0";
-          root = ./fixtures/basic;
-          path = ".";
-          dependencies = [
-            "daml-prim"
-            "daml-stdlib"
-            "daml-script"
-          ];
-        };
-      }
-      // import ./fixtures/multi { inherit buildDamlPackage; }
-      // {
-        oci = import ./fixtures/oci { inherit buildDamlPackage fetchOciDar; };
-      };
+      packages.${system} =
+        let
+          fixture =
+            path:
+            let
+              generated = import path;
+            in
+            generated (
+              builtins.intersectAttrs (builtins.functionArgs generated) {
+                inherit buildDamlPackage fetchOciDar;
+              }
+            );
+        in
+        fixture ./fixtures/basic // fixture ./fixtures/multi // fixture ./fixtures/oci;
 
       devShells.${system}.default = pkgs.mkShell {
         strictDeps = true;
@@ -54,6 +51,7 @@
           pkgs.rust-analyzer
           pkgs.clippy
           pkgs.nixfmt
+          pkgs.oras
           pkgs.tombi
         ];
       };

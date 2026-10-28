@@ -11,11 +11,11 @@ use std::{
    },
 };
 
+use thiserror::Error;
 use serde::{
    Deserialize,
    de::DeserializeOwned,
 };
-use thiserror::Error;
 
 use crate::oci::{
    InvalidReference,
@@ -299,7 +299,7 @@ pub(crate) fn load<T: DeserializeOwned>(path: &Path) -> Result<(T, PathBuf), Err
    Ok((raw, root))
 }
 
-pub(crate) fn normalize(path: &Path) -> PathBuf {
+pub fn normalize(path: &Path) -> PathBuf {
    let mut normal = PathBuf::new();
 
    for component in path.components() {

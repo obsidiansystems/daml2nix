@@ -9,9 +9,13 @@
   version,
   root,
   path,
+  sdkVersion,
   dependencies ? [ ],
   dataDependencies ? [ ],
 }:
+assert lib.assertMsg (
+  sdkVersion == sdk.version
+) "${name} needs SDK ${sdkVersion}, this builder packages ${sdk.version}";
 let
   package = root + "/${path}";
   dar = "${name}-${version}.dar";

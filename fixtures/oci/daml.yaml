@@ -1,9 +1,14 @@
 sdk-version: 3.6.3
-name: trading
+name: market
 version: 1.0.0
 source: daml
+artifact-locations:
+  "@local":
+    url: oci://127.0.0.1:5800
+    insecure: true
 dependencies:
   - daml-prim
   - daml-stdlib
 data-dependencies:
-  - oci://127.0.0.1:5800/fixtures/asset:1.0.0
+  - value: "@local/fixtures/asset:1.0.0"
+    main-package-id: 812212435c29ed724da4c5d22e02020575fef1d23bf18945db0cb22af8c2c908
