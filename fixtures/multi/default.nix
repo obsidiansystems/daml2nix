@@ -8,6 +8,7 @@ let
       sdkVersion = "3.6.3";
       root = ./.;
       path = "asset";
+      source = "daml";
       dependencies = [
         "daml-prim"
         "daml-stdlib"
@@ -20,6 +21,7 @@ let
       sdkVersion = "3.6.3";
       root = ./.;
       path = "trading";
+      source = "daml";
       dependencies = [
         "daml-prim"
         "daml-stdlib"

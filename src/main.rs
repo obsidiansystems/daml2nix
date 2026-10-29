@@ -10,6 +10,10 @@ use std::{
 };
 
 use daml2nix::{
+   lock::{
+      self,
+      Lock,
+   },
    nix,
    project::{
       Project,
@@ -19,22 +23,30 @@ use daml2nix::{
 };
 
 const USAGE: &str =
-   "usage: daml2nix generate <daml.yaml | multi-package.yaml> <output.nix>";
+   "usage: daml2nix generate [--flake <ref>] <daml.yaml | multi-package.yaml> <output.nix>";
+
+const DEFAULT_FLAKE: &str = "github:obsidiansystems/daml2nix";
 
 fn main() -> ExitCode {
    let args = env::args().skip(1).collect::<Vec<_>>();
 
-   let [command, input, output] = args.as_slice() else {
+   let (flake, rest) = match args.as_slice() {
+      [command, flag, flake, rest @ ..] if command == "generate" && flag == "--flake" => {
+         (flake.as_str(), rest)
+      },
+      [command, rest @ ..] if command == "generate" => (DEFAULT_FLAKE, rest),
+      _ => {
+         eprintln!("{USAGE}");
+         return ExitCode::FAILURE;
+      },
+   };
+
+   let [input, output] = rest else {
       eprintln!("{USAGE}");
       return ExitCode::FAILURE;
    };
 
-   if command != "generate" {
-      eprintln!("{USAGE}");
-      return ExitCode::FAILURE;
-   }
-
-   match generate(input.into(), output.into()) {
+   match generate(input.into(), output.into(), flake) {
       Ok(()) => ExitCode::SUCCESS,
       Err(error) => {
          eprint!("error: {error}");
@@ -52,7 +64,7 @@ fn main() -> ExitCode {
    }
 }
 
-fn generate(input: PathBuf, output: PathBuf) -> Result<(), Box<dyn Error>> {
+fn generate(input: PathBuf, output: PathBuf, flake: &str) -> Result<(), Box<dyn Error>> {
    let workspace = if input
       .file_name()
       .is_some_and(|name| name == "multi-package.yaml")
@@ -69,8 +81,27 @@ fn generate(input: PathBuf, output: PathBuf) -> Result<(), Box<dyn Error>> {
    let output_dir = output
       .parent()
       .ok_or("output path has no parent directory")?;
+   let lock_path = output_dir.join(lock::FILE_NAME);
 
-   fs::write(&output, nix::render(&workspace, &root, output_dir)?)?;
+   let mut lock = Lock {
+      version: 1,
+      ..Lock::default()
+   };
+
+   fs::write(
+      &output,
+      nix::render(&workspace, &root, output_dir, &mut lock)?,
+   )?;
+   fs::write(&lock_path, lock.to_json())?;
+
+   let versions = workspace
+      .packages
+      .iter()
+      .map(|package| (package.name.clone(), package.version.clone()))
+      .collect::<Vec<_>>();
+
+   lock.fill(&output, flake, &versions)?;
+   fs::write(&lock_path, lock.to_json())?;
 
    Ok(())
 }

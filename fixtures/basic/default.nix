@@ -8,6 +8,7 @@ let
       sdkVersion = "3.6.3";
       root = ./.;
       path = ".";
+      source = "daml";
       dependencies = [
         "daml-prim"
         "daml-stdlib"

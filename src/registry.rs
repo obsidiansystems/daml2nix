@@ -4,11 +4,11 @@ use std::{
    process::Command,
 };
 
-use thiserror::Error;
 use serde::{
    Deserialize,
    de::DeserializeOwned,
 };
+use thiserror::Error;
 
 use crate::oci::Reference;
 

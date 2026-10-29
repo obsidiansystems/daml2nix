@@ -9,6 +9,7 @@
   version,
   root,
   path,
+  source,
   sdkVersion,
   dependencies ? [ ],
   dataDependencies ? [ ],
@@ -26,7 +27,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   src = lib.fileset.toSource {
     inherit root;
-    fileset = lib.fileset.difference package (lib.fileset.maybeMissing (package + "/.daml"));
+    fileset = lib.fileset.unions [
+      (package + "/daml.yaml")
+      (package + "/${source}")
+    ];
   };
 
   nativeBuildInputs = [ jq ];

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "builder": "git+file:///home/amaanq/projects/work/dpm-registry-nix",
+  "packages": {
+    "basic": {
+      "version": "1.0.0",
+      "source": "sha256-W1lgYJoXZRV7CoHog+en0pu/ZlWPCrLPIm7Iw0sz4b8=",
+      "derivation": "/nix/store/d9f2haw00x82gvwdwiw4sxvhidnwbhmf-basic-1.0.0.drv",
+      "dar": "sha256:118c72ac48c040a15188ac06f2277017e3b7b8f903a2a70d6573d263fffa0cf0"
+    }
+  },
+  "dependencies": {}
+}

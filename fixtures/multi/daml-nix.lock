@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "builder": "git+file:///home/amaanq/projects/work/dpm-registry-nix",
+  "packages": {
+    "asset": {
+      "version": "1.0.0",
+      "source": "sha256-2Dc5b7M5fNY+PaNSR/q9CBETCT7mGgkOs8ZaT+eGHhI=",
+      "derivation": "/nix/store/qjbmjxg0igkq42dhwla8wy10yj9kr2kj-asset-1.0.0.drv",
+      "dar": "sha256:163dba677ec64c0be949e2086dcb05511194a129750d75c4610d71535fd68457"
+    },
+    "trading": {
+      "version": "1.0.0",
+      "source": "sha256-r2Mb+KKZbqv+ewSjrma7pyq4KzYgoWTg9Aw08CFUuPY=",
+      "derivation": "/nix/store/99wl3l2akv2xa68ky6qvqqcc37z1n2wp-trading-1.0.0.drv",
+      "dar": "sha256:c8e7ef423d07e68d8e14389cdf502c9bf9c5d9898804929a0c5e69305372db46"
+    }
+  },
+  "dependencies": {}
+}

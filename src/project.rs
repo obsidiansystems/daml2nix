@@ -11,11 +11,11 @@ use std::{
    },
 };
 
-use thiserror::Error;
 use serde::{
    Deserialize,
    de::DeserializeOwned,
 };
+use thiserror::Error;
 
 use crate::oci::{
    InvalidReference,
