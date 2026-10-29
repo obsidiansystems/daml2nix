@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+jobs:
+  fixtures:
+    name: Rebuild fixtures against the lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            extra-experimental-features = nix-command flakes
+
+      # Seeding from the committed OCI layout keeps the manifest digest the
+      # lock pins, where a fresh `dpm publish` would stamp a new one.
+      - name: Start a registry with the oci fixture's dependency
+        run: |
+          cat > "$RUNNER_TEMP/registry.yml" <<EOF
+          version: 0.1
+          storage:
+            filesystem:
+              rootdirectory: $RUNNER_TEMP/registry
+          http:
+            addr: 127.0.0.1:5800
+          EOF
+          nix shell --inputs-from . nixpkgs#distribution --command \
+            registry serve "$RUNNER_TEMP/registry.yml" > "$RUNNER_TEMP/registry.log" 2>&1 &
+          timeout 120 bash -c 'until curl -sf http://127.0.0.1:5800/v2/; do sleep 1; done'
+          nix shell --inputs-from . nixpkgs#oras --command oras copy --to-plain-http \
+            --from-oci-layout fixtures/oci/registry:1.0.0 127.0.0.1:5800/fixtures/asset:1.0.0
+
+      - name: Regenerate every fixture
+        run: |
+          nix develop --command cargo build --locked
+          for fixture in basic/daml.yaml oci/daml.yaml multi/multi-package.yaml; do
+            nix develop --command target/debug/daml2nix generate --flake . \
+              "fixtures/$fixture" "$(dirname "fixtures/$fixture")/default.nix"
+          done
+
+      - name: Compare against the committed files
+        run: |
+          git diff --exit-code -- 'fixtures/*/default.nix'
+          for lock in fixtures/*/daml-nix.lock; do
+            diff -u <(git show "HEAD:$lock" | jq 'del(.builder)') <(jq 'del(.builder)' "$lock")
+          done
+
+  rust:
+    name: Rust and formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            extra-experimental-features = nix-command flakes
+
+      - name: clippy
+        run: nix develop --command cargo clippy --locked --all-targets -- --deny warnings
+
+      - name: rustfmt
+        run: nix develop --command cargo fmt --check
+
+      - name: tombi
+        run: nix develop --command tombi format --offline --check
+
+      - name: nixfmt
+        run: git ls-files -z '*.nix' | xargs -0 nix develop --command nixfmt --check
+
+  actions:
+    name: Actions lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: actionlint
+        run: nix shell --inputs-from . nixpkgs#actionlint nixpkgs#shellcheck --command actionlint
+
+      - name: zizmor
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: nix run --inputs-from . nixpkgs#zizmor -- --format github .

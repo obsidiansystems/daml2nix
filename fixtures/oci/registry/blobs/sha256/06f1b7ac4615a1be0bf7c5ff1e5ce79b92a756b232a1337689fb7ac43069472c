@@ -1,0 +1,6 @@
+apiVersion: digitalasset.com/v1
+kind: Dar
+spec:
+  dars:
+  - path: asset.dar
+    main-package-id: 812212435c29ed724da4c5d22e02020575fef1d23bf18945db0cb22af8c2c908
