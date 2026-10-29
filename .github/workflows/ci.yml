@@ -50,7 +50,7 @@ jobs:
       - name: Regenerate every fixture
         run: |
           nix develop --command cargo build --locked
-          for fixture in basic/daml.yaml oci/daml.yaml multi/multi-package.yaml; do
+          for fixture in basic/daml.yaml oci/daml.yaml pinned/daml.yaml multi/multi-package.yaml; do
             nix develop --command target/debug/daml2nix generate --flake . \
               "fixtures/$fixture" "$(dirname "fixtures/$fixture")/default.nix"
           done

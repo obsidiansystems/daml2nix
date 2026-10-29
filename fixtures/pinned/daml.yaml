@@ -1,0 +1,14 @@
+sdk-version: 3.6.3
+name: pinned
+version: 1.0.0
+source: daml
+artifact-locations:
+  "@local":
+    url: oci://127.0.0.1:5800
+    insecure: true
+dependencies:
+  - daml-prim
+  - daml-stdlib
+data-dependencies:
+  - value: "@local/fixtures/asset:1.0.0@sha256:615a6e1deeb847976a1bf259cf91873f935e87a95e9ebdc3981ad81dac12147e"
+    main-package-id: 812212435c29ed724da4c5d22e02020575fef1d23bf18945db0cb22af8c2c908

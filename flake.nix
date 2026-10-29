@@ -40,7 +40,10 @@
               }
             );
         in
-        fixture ./fixtures/basic // fixture ./fixtures/multi // fixture ./fixtures/oci;
+        fixture ./fixtures/basic
+        // fixture ./fixtures/multi
+        // fixture ./fixtures/oci
+        // fixture ./fixtures/pinned;
 
       devShells.${system}.default = pkgs.mkShell {
         strictDeps = true;
